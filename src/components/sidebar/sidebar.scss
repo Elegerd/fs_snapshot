@@ -1,0 +1,73 @@
+@import "../../config.scss";
+
+nav {
+  min-width: 200px;
+  background: $primary-color;
+  -webkit-user-select: none;
+}
+
+.main-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 10%;
+  color: $secondary-background-color;
+  font-size: 18px;
+}
+
+.main-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  padding: 5px 0;
+  color: $secondary-color;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.main-nav__nav-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.nav-block__title {
+  padding-bottom: 10px;
+  width: 100%;
+  color: $other-color;
+  font-weight: bold;
+}
+
+.nav-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px 0;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: inherit;
+  color: inherit;
+
+  &:hover {
+    color: $hover-color;
+  }
+
+  &:active {
+    color: $active-color;
+  }
+}
+
+.nav-item--active {
+  @extend .nav-item;
+  color: $active-color;
+}
+
+.nav-item__icon {
+  padding-right: 10px;
+}

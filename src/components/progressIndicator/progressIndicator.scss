@@ -1,0 +1,33 @@
+.path_name {
+  padding: 20px 0 10px;
+  font-size: 0.8em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.progress-line {
+  height: 30px;
+}
+
+.progress-status {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 0;
+  font-size: 0.8em;
+
+  &__counter {
+    padding: 0 10px;
+  }
+
+  &__success {
+    width: 10px;
+    height: 10px;
+    background: green;
+  }
+
+  &__reject {
+    width: 10px;
+    height: 10px;
+    background: red;
+  }
+}

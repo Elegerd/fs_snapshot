@@ -1,0 +1,8 @@
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: overlay;
+  padding: 20px 30px;
+  -webkit-user-select: none;
+}

@@ -1,0 +1,30 @@
+@import "../../config.scss";
+
+
+.analysis {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.selected-snapshots {
+  padding: 20px 0;
+
+  &__title {
+    font-weight: bold;
+    color: $other-color;
+    padding: 10px 0;
+  }
+
+  &__caption {
+    padding: 10px 0;
+    text-align: end;
+    font-style: italic;
+
+    &--notice {
+      padding-left: 10px;
+      color: red;
+    }
+  }
+}
