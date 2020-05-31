@@ -39,7 +39,7 @@ button {
 }
 
 button:disabled,
-button[disabled]{
+button[disabled] {
   @extend button;
   opacity: 0.8;
   cursor: not-allowed;

@@ -10,6 +10,7 @@ import Setting from '../setting/Setting.jsx'
 import './appSpace.scss'
 
 
+const { myIpcRenderer } = window;
 const AppSpace = () => {
 
   let removeListenerGetHash, removeListenerAnalysis;

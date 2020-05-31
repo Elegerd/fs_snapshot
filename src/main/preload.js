@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const {contextBridge, ipcRenderer} = require('electron');
 
 
 function callIpcRenderer(method, channel, ...args) {
@@ -11,7 +11,7 @@ function callIpcRenderer(method, channel, ...args) {
     if ('on' === method) {
         const listener = args[0];
         if (!listener)
-          throw 'Listener must be provided';
+            throw 'Listener must be provided';
 
         // Wrap the given listener in a new function to avoid exposing
         // the `event` arg to our renderer.
@@ -21,7 +21,7 @@ function callIpcRenderer(method, channel, ...args) {
         // The returned function must not return anything (and NOT
         // return the value from `removeListener()`) to avoid exposing ipcRenderer.
         return () => {
-          ipcRenderer.removeListener(channel, wrappedListener);
+            ipcRenderer.removeListener(channel, wrappedListener);
         };
     }
 }
