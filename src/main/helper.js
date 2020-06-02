@@ -5,33 +5,27 @@ const hasha = require('hasha');
 const xl = require('excel4node');
 
 
-const saveAnalysis = (paths, firstSnapshot, secondSnapshot) => {
+const saveAnalysis = (paths, pathToSave, firstSnapshot, secondSnapshot) => {
     let wb = new xl.Workbook({
-        defaultFont: {
-            color: '#000000',
-            size: 12,
-        }
+        defaultFont: { color: '#000000', size: 12 }
     });
-    let ws = wb.addWorksheet('Analysis');
+    let ws = wb.addWorksheet('Analysis')
     ws.cell(1, 1).string('Path')
     ws.cell(1, 2).string('Hash value[1]')
     ws.cell(1, 3).string('Hash value[2]')
     ws.cell(1, 4).string('Result comparison')
+    ws.column(1).setWidth(50)
+    ws.column(2).setWidth(50)
+    ws.column(3).setWidth(50)
+    ws.column(4).setWidth(50)
     paths.forEach((path, index) => {
-        const isEqual = firstSnapshot[path] === secondSnapshot[path];
+        const isEqual = firstSnapshot[path] === secondSnapshot[path]
         ws.cell(index + 2, 1).string(path)
-        ws.cell(index + 2, 2).string(firstSnapshot[path])
-        ws.cell(index + 2, 3).string(secondSnapshot[path])
-        ws.cell(index + 2, 4).bool(isEqual).style({
-            font: {
-                color: '#ffffff',
-            },
-            fill: {
-                bgColor: isEqual ? '#008000' : '#ff0000'
-            }
-        })
+        ws.cell(index + 2, 2).string(firstSnapshot[path] || 'No match')
+        ws.cell(index + 2, 3).string(secondSnapshot[path] || 'No match')
+        ws.cell(index + 2, 4).string(isEqual ? "+" : "-")
     });
-    //wb.write('Excel.xlsx');
+    wb.write(pathToSave)
 };
 
 const getHashFile = (path, algorithm = 'md5') => {

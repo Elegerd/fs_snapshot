@@ -16,7 +16,7 @@
     "name": "Kravtsov Maksim",
     "email": "kravcov.max@gmail.com"
   },
-  "license": "MIT",
+  "license": "ISC",
   "config": {
     "forge": {
       "packagerConfig": {},
@@ -51,8 +51,8 @@
               "config": "./webpack.renderer.config.js",
               "entryPoints": [
                 {
-                  "html": "./src/index.html",
-                  "js": "./src/index.jsx",
+                  "html": "./src/renderer/index.html",
+                  "js": "./src/renderer/index.jsx",
                   "name": "main_window"
                 }
               ]
@@ -99,7 +99,9 @@
     "@material-ui/core": "^4.9.11",
     "async": "^3.2.0",
     "classnames": "^2.2.6",
+    "cron": "^1.8.2",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^5.1.1",
     "excel4node": "^1.7.2",
     "hasha": "^5.2.0",
     "promise-limit": "^2.7.0",
