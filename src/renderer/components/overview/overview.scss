@@ -22,10 +22,6 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-
-  &__button {
-    margin: 20px 0;
-  }
 }
 
 .process_container {
@@ -41,8 +37,4 @@
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
-
-  .overview__button:not(:last-child) {
-    margin-right: 20px;
-  }
 }

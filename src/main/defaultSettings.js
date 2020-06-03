@@ -1,4 +1,7 @@
+const path = require('path');
+
 export const defaultSettings = {
     disabledSchedule: true,
-    schedule: {hour: 15, time: 0}
+    paths: [path.resolve()],
+    schedule: '15:00'
 }

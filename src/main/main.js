@@ -1,10 +1,12 @@
-const {app, BrowserWindow, Tray, Menu, Notification} = require('electron');
+const {app, BrowserWindow, Tray, Menu} = require('electron');
 const {default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} = require('electron-devtools-installer');
 const path = require('path');
 const Store = require('electron-store');
 const {createNewWindow} = require('./window.js');
-const defaultSettings = require('./defaultSettings.js')
+const {createNewJobs} = require('./job.js');
+const {defaultSettings} = require('./defaultSettings.js')
 require('./ipcMain.js')();
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-line global-require
@@ -16,13 +18,21 @@ app.allowRendererProcessReuse = true;
 
 let mainWindow;
 let tray;
-const store = new Store()
+const store = new Store();
 
-const initSettings = () => {
+const init = () => {
     const settings = store.get('settings')
+    const time = settings.schedule.split(':');
+    const systemAnalysisJob = createNewJobs(
+        'systemAnalysis',
+        `00 ${time[1]} ${time[0]} * * *`,
+        () => { console.log("HI") },
+        'Asia/Omsk'
+    )
+    systemAnalysisJob.start()
     if (!settings) store.set('settings', defaultSettings)
 }
-initSettings()
+init()
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

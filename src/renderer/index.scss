@@ -38,6 +38,10 @@ button {
   cursor: pointer;
 }
 
+button:not(:last-child) {
+  margin-right: 20px;
+}
+
 button:disabled,
 button[disabled] {
   @extend button;

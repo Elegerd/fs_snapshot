@@ -2,7 +2,7 @@ import React from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 import {selectSnapshots} from '../../actions/mainActions.js'
 import Table from '../commonComponents/Table.jsx'
-import {setAnalysis} from "../../actions/mainActions"
+import {setAnalysis, setSnapshots} from '../../actions/mainActions.js'
 import './analysis.scss'
 
 
@@ -13,47 +13,54 @@ const Analysis = () => {
     const {selectedSnapshots, analysis} = useSelector(state => state.main);
 
     const onClickSelectSnapshots = () => dispatch(selectSnapshots());
-    const onClickAnalysis = () => {
-        myIpcRenderer.send('APP_SNAPSHOTS_ANALYSIS', selectedSnapshots);
-    }
-    const resetAnalysis = () => dispatch(setAnalysis(null));
-
-    const renderSelectSnapshots = () => {
-        return (
-            <div>
-                <h2> Select the path to snapshots: </h2>
-                <button onClick={_ => onClickSelectSnapshots()}>
-                    Select snapshots
-                </button>
-            </div>
-        );
+    const onClickAnalysis = () => myIpcRenderer.send('APP_SNAPSHOTS_ANALYSIS', selectedSnapshots);
+    const onClickResetAnalysis = () => {
+        dispatch(setAnalysis(null));
+        dispatch(setSnapshots(null));
     };
+    const onClickResetSnapshots = () => dispatch(setSnapshots(null));
+
 
     const renderAnalysisButton = () => {
         if (analysis)
             return null;
         return (
             <div>
-                <button onClick={_ => onClickAnalysis()}>
+                <button onClick={onClickAnalysis}>
                     Make an analysis
+                </button>
+                <button onClick={onClickResetSnapshots}>
+                    Reset snapshots
                 </button>
             </div>
         );
     };
 
-    const renderSelectedSnapshots = () => {
+    const renderSelectSnapshots = () => {
         return (
-            <div className={'selected-snapshots'}>
-                <div className={'selected-snapshots__title'}> Snapshots</div>
-                <Table objects={selectedSnapshots}/>
-                <div className={'selected-snapshots__caption'}>
-                    Selected snapshots
-                    {selectedSnapshots.length < 2 && (
+            <div>
+                {!(Array.isArray(selectedSnapshots) && selectedSnapshots.length >= 2) &&
+                <>
+                    <h2> Select the path to snapshots: </h2>
+                    <button onClick={onClickSelectSnapshots}>
+                        Select snapshots
+                    </button>
+                </>
+                }
+                {Array.isArray(selectedSnapshots) &&
+                <div className={'selected-snapshots'}>
+                    <div className={'selected-snapshots__title'}> Snapshot</div>
+                    <Table objects={selectedSnapshots}/>
+                    <div className={'selected-snapshots__caption'}>
+                        Selected snapshots
+                        {selectedSnapshots.length < 2 && (
                         <span className={'selected-snapshots__caption--notice'}>
-              (select two snapshots)
-            </span>
-                    )}
+                            (select two snapshots)
+                        </span>
+                        )}
+                    </div>
                 </div>
+                }
             </div>
         );
     };
@@ -62,21 +69,21 @@ const Analysis = () => {
         return (
             <>
                 {analysis &&
-                <div>
+                <div className={'analysis__status'}>
                     {(analysis.status === 'beginning' || analysis.status === 'processing') &&
-                    <p>Started the process of comparing snapshots...</p>
+                    <h2>Started the process of comparing snapshots...</h2>
                     }
                     {analysis.status === 'done' &&
                     <>
-                        <p>Done! The path to the file:</p>
+                        <h2>Done! The path to the file:</h2>
                         <p title={analysis.pathToSave}>{analysis.pathToSave}</p>
                     </>
                     }
                     {analysis.status === 'error' &&
-                    <p>An error has occurred!</p>
+                    <h2>An error has occurred!</h2>
                     }
-                    <button onClick={_ => resetAnalysis()}>
-                        Reset directories
+                    <button className={'analysis__button'} onClick={onClickResetAnalysis}>
+                        Reset process
                     </button>
                 </div>}
             </>
@@ -90,7 +97,6 @@ const Analysis = () => {
                 {renderSelectSnapshots()}
                 {Array.isArray(selectedSnapshots) && (
                     <>
-                        {renderSelectedSnapshots()}
                         {(selectedSnapshots.length > 1) && renderAnalysisButton()}
                         {renderAnalysis()}
                     </>

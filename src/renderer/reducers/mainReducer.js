@@ -3,7 +3,7 @@ import {
     SET_PROCESSING_STATUS,
     SET_SNAPSHOTS,
     SET_ANALYSIS,
-    SET_SETTING
+    SET_SETTINGS
 } from '../actions/mainActions.js'
 
 
@@ -12,11 +12,7 @@ const initState = {
     selectedSnapshots: null,
     processingStatus: null,
     analysis: null,
-    setting: {
-        disabledSchedule: false,
-        hour: 15,
-        time: 0
-    }
+    settings: null
 }
 
 export function mainReducer(state = initState, action) {
@@ -33,10 +29,10 @@ export function mainReducer(state = initState, action) {
                 analysis: action.payload
             }
         }
-        case SET_SETTING: {
+        case SET_SETTINGS: {
             return {
                 ...state,
-                setting: action.payload
+                settings: action.payload
             }
         }
         case SET_SNAPSHOTS: {

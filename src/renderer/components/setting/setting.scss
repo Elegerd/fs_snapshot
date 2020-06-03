@@ -1,0 +1,29 @@
+.setting {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  height: 100%;
+  font-size: 22px;
+
+  input[type="text"] {
+    font-size: 18px;
+    width: 65px !important;
+    text-align: end;
+    height: 25px;
+    border-radius: 7px;
+    border: 2px solid #919dac;
+    padding: 0 10px 0 0;
+  }
+
+  & > * {
+    margin-bottom: 10px;
+  }
+
+  &__dirs > p, &__scan > p, &__time > p {
+    padding-bottom: 10px;
+  }
+
+  &__dirs > table {
+    font-size: 18px;
+  }
+}

@@ -1,13 +1,17 @@
 const {app, ipcMain, dialog} = require('electron');
+const {getJob} = require('./job.js')
 const {getHashFile, getAllFiles, saveAnalysis, filter} = require('./helper.js');
 const promiseLimit = require('promise-limit');
 const path = require('path');
 const fsp = require('fs').promises;
 const fs = require('fs');
+const {CronTime} = require('cron');
 const {getWindow} = require("./window.js");
+const Store = require('electron-store');
 
 
 const limit = promiseLimit(5);
+const store = new Store();
 module.exports = () => {
     ipcMain.handle('APP_SELECT_SNAPSHOTS', (event) => {
         return dialog.showOpenDialogSync(getWindow('main'), {
@@ -20,40 +24,17 @@ module.exports = () => {
         });
     });
 
-    // ipcMain.on('APP_SETTING', (event, date) => {
-    //     const defaultSetting = {
-    //         disabledSchedule: true,
-    //         hour: 15,
-    //         time: 0
-    //     };
-    //     if (date) {
-    //         setting
-    //     } else {
-    //
-    //     }
-    //     fs.mkdir(path.resolve('/fs_snapshots/snapshots'), {recursive: true}, (err) => {
-    //         if (err) console.log(err)
-    //         fs.readFile('/fs_snapshots/setting.json', 'utf8', (err, data) => {
-    //             const defaultSetting = {
-    //                 disabledSchedule: true,
-    //                 hour: 15,
-    //                 time: 0
-    //             };
-    //             let setting = {};
-    //             if (err) {
-    //                 fs.writeFile(path.resolve(`/fs_snapshots/setting.json`),
-    //                     JSON.stringify(defaultSetting, null, 2), 'utf8', (error) => {
-    //                         if (error) reply({status: "error"});
-    //                         setting = defaultSetting;
-    //                     }
-    //                 );
-    //             } else {
-    //                 setting = JSON.parse(data);
-    //             }
-    //             ipcMain.send('')
-    //         });
-    //     });
-    // })
+    ipcMain.on('APP_SETTING', (event, date) => {
+        if (date) {
+            store.set('settings', date);
+            const time = date.schedule.split(':');
+            const systemAnalysisJob = getJob('systemAnalysis');
+            const cronTime = new CronTime(`00 ${time[1]} ${time[0]} * * *`)
+            systemAnalysisJob.setTime(cronTime)
+            systemAnalysisJob.start()
+        }
+        event.reply('APP_SETTING_REPLY', store.get('settings'))
+    });
 
     ipcMain.on('APP_SNAPSHOTS_ANALYSIS', (event, snapshots_path) => {
         const reply = (message) => event.reply('APP_SNAPSHOTS_ANALYSIS_REPLY', message);
@@ -98,12 +79,14 @@ module.exports = () => {
             const count = filePaths.length;
             let counter = 0;
             let counterError = 0;
-            reply({count, counter, counterError, status: "beginning", currentFile: null});
+            reply({count, counter, counterError, status: "beginning",
+                currentFile: null, message: "Process start..."});
             const getPromiseHashFile = (filePath) => {
                 return getHashFile(filePath)
                     .then(hash => {
                         counter += 1;
-                        reply({count, counter, status: "processing", currentFile: filePath});
+                        reply({count, counter, status: "processing", currentFile: filePath,
+                            message: filePath});
                         let res = {};
                         res[filePath] = hash;
                         return res;
@@ -111,7 +94,8 @@ module.exports = () => {
                     .catch(_ => {
                         counter += 1;
                         counterError += 1;
-                        reply({count, counter, counterError, status: "processing", currentFile: filePath});
+                        reply({count, counter, counterError, status: "processing", currentFile: filePath,
+                            message: filePath});
                         let res = {};
                         res[filePath] = null;
                         return res;
@@ -125,13 +109,14 @@ module.exports = () => {
                     let hashs = res.reduce((accum, obj) => {
                         return Object.assign(accum, obj.value);
                     }, {});
-                    reply({status: "saving", currentFile: null, hashs});
+                    reply({status: "saving", currentFile: null, hashs,
+                        message: "Saving is in progress..."});
                     fs.mkdir(path.resolve(app.getAppPath(), 'snapshots'), {recursive: true}, (err) => {
-                        if (err) reply({status: "error"});
+                        if (err) reply({status: "error", message: "Something went wrong..."});
                         fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
                             JSON.stringify(hashs, null, 2), 'utf8', (error) => {
-                                if (error) reply({status: "error"});
-                                reply({status: "done"});
+                                if (error) reply({status: "error", message: "Something went wrong..."});
+                                reply({status: "done", message: "Done!"});
                             }
                         );
                     });

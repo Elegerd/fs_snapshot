@@ -13,12 +13,12 @@ const Overview = () => {
     const {selectedDirectories, processingStatus} = useSelector(state => state.main);
 
     const onClickSelectDirectories = () => dispatch(selectDirectories());
-    const getSnapshot = () => {
+    const onClickGetSnapshot = () => {
         dispatch(setProcessingStatus({status: 'waiting'}));
         myIpcRenderer.send('APP_GET_HASH_FILES', selectedDirectories);
     }
-    const resetDir = () => dispatch(setDirectories(null));
-    const resetStates = () => {
+    const onClickResetDir = () => dispatch(setDirectories(null));
+    const onClickResetStates = () => {
         dispatch(setDirectories(null));
         dispatch(setProcessingStatus(null));
     };
@@ -27,7 +27,7 @@ const Overview = () => {
         return (
             <div>
                 <h2> Select the path to the directories: </h2>
-                <button className={'overview__button'} onClick={_ => onClickSelectDirectories()}>
+                <button onClick={onClickSelectDirectories}>
                     Select directories
                 </button>
             </div>
@@ -37,10 +37,10 @@ const Overview = () => {
     const renderGetSnapshot = () => {
         return (
             <div className={'overview_container'}>
-                <button className={'overview__button'} onClick={_ => getSnapshot()}>
+                <button onClick={onClickGetSnapshot}>
                     Get snapshot
                 </button>
-                <button className={'overview__button'} onClick={_ => resetDir()}>
+                <button onClick={onClickResetDir}>
                     Reset directories
                 </button>
             </div>
@@ -62,7 +62,7 @@ const Overview = () => {
             <div className={'process_container'}>
                 <ProgressIndicator processingStatus={processingStatus}/>
                 {(processingStatus.status === 'done' || processingStatus.status === 'error') &&
-                <button className={'overview__button'} onClick={_ => resetStates()}>
+                <button className={'overview__button'} onClick={onClickResetStates}>
                     Reset process
                 </button>
                 }

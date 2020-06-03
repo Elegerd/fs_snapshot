@@ -7,8 +7,8 @@ import HomePage from '../homePage/HomePage.jsx'
 import Overview from '../overview/Overview.jsx'
 import Analysis from '../analysis/Analysis.jsx'
 import Setting from '../setting/Setting.jsx'
+import {setSettings} from "../../actions/mainActions.js";
 import './appSpace.scss'
-import {setSetting} from "../../actions/mainActions";
 
 
 const {myIpcRenderer} = window;
@@ -25,7 +25,7 @@ const AppSpace = () => {
             dispatch(setAnalysis(data));
         });
         removeListenerSetting = myIpcRenderer.on('APP_SETTING_REPLY', data => {
-            dispatch(setSetting(data));
+            dispatch(setSettings(data));
         });
         myIpcRenderer.send('APP_SETTING');
         return () => {
