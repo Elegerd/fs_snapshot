@@ -46,11 +46,11 @@ const Setting = () => {
                         onColor={'#334ce7'}
                         offColor={'#919dac'}
                         activeBoxShadow={'0 0 2px 3px #4a5c7a'}
-                        checked={customSettings.disabledSchedule}
+                        checked={!customSettings.disabledSchedule}
                         onChange={(value) => {
                             setCustomSettings((prevState) => ({
                                 ...prevState,
-                                disabledSchedule: value
+                                disabledSchedule: !value
                             }))
                         }}
                     />

@@ -55,11 +55,14 @@ module.exports = () => {
                 const secondSnapshots = snapshots[1];
                 const allKeys = filter(Object.keys(firstSnapshots).concat(Object.keys(secondSnapshots))).sort();
                 fs.mkdir(path.resolve(app.getAppPath(), 'analysis'), {recursive: true}, (err) => {
-                    if (err) reply({status: "error"});
-                    const timestamp = new Date()
-                    const pathToSave = path.resolve(app.getAppPath(), 'analysis', `${+timestamp}.xlsx`)
-                    saveAnalysis(allKeys, pathToSave, firstSnapshots, secondSnapshots);
-                    reply({status: "done", pathToSave});
+                    if (err)
+                        reply({status: "error"});
+                    else {
+                        const timestamp = new Date()
+                        const pathToSave = path.resolve(app.getAppPath(), 'analysis', `${+timestamp}.xlsx`)
+                        saveAnalysis(allKeys, pathToSave, firstSnapshots, secondSnapshots);
+                        reply({status: "done", pathToSave});
+                    }
                 });
             })
             .catch(error => {
@@ -112,13 +115,16 @@ module.exports = () => {
                     reply({status: "saving", currentFile: null, hashs,
                         message: "Saving is in progress..."});
                     fs.mkdir(path.resolve(app.getAppPath(), 'snapshots'), {recursive: true}, (err) => {
-                        if (err) reply({status: "error", message: "Something went wrong..."});
-                        fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
-                            JSON.stringify(hashs, null, 2), 'utf8', (error) => {
-                                if (error) reply({status: "error", message: "Something went wrong..."});
-                                reply({status: "done", message: "Done!"});
-                            }
-                        );
+                        if (err)
+                            reply({status: "error", message: "Something went wrong..."});
+                        else {
+                            fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
+                                JSON.stringify(hashs, null, 2), 'utf8', (error) => {
+                                    if (error) reply({status: "error", message: "Something went wrong..."});
+                                    else reply({status: "done", message: "Done!"});
+                                }
+                            );
+                        }
                     });
                 });
         });

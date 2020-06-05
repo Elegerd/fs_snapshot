@@ -54,7 +54,7 @@ const Analysis = () => {
                     <div className={'selected-snapshots__caption'}>
                         Selected snapshots
                         {selectedSnapshots.length < 2 && (
-                        <span className={'selected-snapshots__caption--notice'}>
+                            <span className={'selected-snapshots__caption--notice'}>
                             (select two snapshots)
                         </span>
                         )}
@@ -82,9 +82,11 @@ const Analysis = () => {
                     {analysis.status === 'error' &&
                     <h2>An error has occurred!</h2>
                     }
+                    {analysis.status === 'error' && analysis.status === 'done' &&
                     <button className={'analysis__button'} onClick={onClickResetAnalysis}>
                         Reset process
                     </button>
+                    }
                 </div>}
             </>
         );

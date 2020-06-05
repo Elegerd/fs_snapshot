@@ -1,9 +1,14 @@
+const {app, Notification} = require('electron');
 const fs = require('fs');
 const path = require('path');
 const async = require('async');
 const hasha = require('hasha');
 const xl = require('excel4node');
+const promiseLimit = require('promise-limit');
+const Store = require('electron-store');
 
+
+const store = new Store();
 
 const saveAnalysis = (paths, pathToSave, firstSnapshot, secondSnapshot) => {
     let wb = new xl.Workbook({
@@ -81,11 +86,60 @@ const getAllFiles = (directories, callback) => {
     });
 };
 
+const handleOnTickSystemAnalysisJob = () => {
+    const notificationStart = new Notification({
+        title: 'FS Snapshot',
+        body: 'The automatic scanning process has begun'
+    })
+    notificationStart.show();
+    const settings = store.get('settings')
+    const limit = promiseLimit(5);
+    if (!settings.disabledSchedule && (Array.isArray(settings.paths) && settings.paths.length)) {
+        getAllFiles(settings.paths, (err, filePaths) => {
+            const getPromiseHashFile = (filePath) => {
+                return getHashFile(filePath)
+                    .then(hash => {
+                        let res = {};
+                        res[filePath] = hash;
+                        return res;
+                    })
+                    .catch(_ => {
+                        let res = {};
+                        res[filePath] = null;
+                        return res;
+                    });
+            };
+            const promises = filePaths.map(file => {
+                return limit(() => getPromiseHashFile(file))
+            });
+            Promise.allSettled(promises)
+                .then(res => {
+                    let hashs = res.reduce((accum, obj) => {
+                        return Object.assign(accum, obj.value);
+                    }, {});
+                    fs.mkdir(path.resolve(app.getAppPath(), 'snapshots'), {recursive: true}, (error) => {
+                        if (error) console.log("[SystemAnalysisJob]", error)
+                        fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
+                            JSON.stringify(hashs, null, 2), 'utf8', (error) => {
+                                if (error) console.log("[SystemAnalysisJob]", error)
+                                const notificationEnd = new Notification({
+                                    title: 'FS Snapshot', body: 'The automatic scanning process has ended'
+                                })
+                                notificationEnd.show()
+                            }
+                        );
+                    });
+                });
+        })
+    }
+}
+
 
 module.exports = {
     getHashFile,
     getAllFiles,
     getFiles,
     saveAnalysis,
+    handleOnTickSystemAnalysisJob,
     filter
 }

@@ -3,11 +3,10 @@ import {useDispatch} from 'react-redux'
 import {setProcessingStatus, setAnalysis} from '../../actions/mainActions.js'
 import {Switch, Route} from 'react-router-dom'
 import Sidebar from '../sidebar/Sidebar.jsx'
-import HomePage from '../homePage/HomePage.jsx'
 import Overview from '../overview/Overview.jsx'
 import Analysis from '../analysis/Analysis.jsx'
 import Setting from '../setting/Setting.jsx'
-import {setSettings} from "../../actions/mainActions.js";
+import {setSettings} from '../../actions/mainActions.js'
 import './appSpace.scss'
 
 
@@ -43,8 +42,7 @@ const AppSpace = () => {
             <Sidebar/>
             <main>
                 <Switch>
-                    <Route exact path='/' component={HomePage}/>
-                    <Route path='/overview' component={Overview}/>
+                    <Route exact path='/' component={Overview}/>
                     <Route path='/analysis' component={Analysis}/>
                     <Route path='/setting' component={Setting}/>
                 </Switch>

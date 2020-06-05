@@ -4,9 +4,12 @@
   "version": "1.0.0",
   "description": "Applications for creating and comparing snapshots",
   "main": ".webpack/main",
+  "build": {
+    "appId": "com.elegerd.fs_snapshot"
+  },
   "private": true,
   "scripts": {
-    "start": "electron-forge start",
+    "start": "cross-env NODE_ENV=development electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish"
@@ -19,7 +22,6 @@
   "license": "ISC",
   "config": {
     "forge": {
-      "packagerConfig": {},
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -30,7 +32,7 @@
         {
           "name": "@electron-forge/maker-zip",
           "platforms": [
-            "darwin"
+            "electronPackagerConfig"
           ]
         },
         {
@@ -84,6 +86,7 @@
     "@electron-forge/plugin-webpack": "^6.0.0-beta.50",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "babel-loader": "^8.1.0",
+    "cross-env": "^7.0.2",
     "css-loader": "^3.4.2",
     "electron": "8.2.0",
     "electron-devtools-installer": "^3.0.0",

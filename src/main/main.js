@@ -3,8 +3,9 @@ const {default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} = requi
 const path = require('path');
 const Store = require('electron-store');
 const {createNewWindow} = require('./window.js');
+const {handleOnTickSystemAnalysisJob} = require('./helper');
 const {createNewJobs} = require('./job.js');
-const {defaultSettings} = require('./defaultSettings.js')
+const {defaultSettings} = require('./defaultSettings.js');
 require('./ipcMain.js')();
 
 
@@ -22,16 +23,21 @@ const store = new Store();
 
 const init = () => {
     const settings = store.get('settings')
+    if (!settings) store.set('settings', defaultSettings)
     const time = settings.schedule.split(':');
     const systemAnalysisJob = createNewJobs(
         'systemAnalysis',
         `00 ${time[1]} ${time[0]} * * *`,
-        () => { console.log("HI") },
+        handleOnTickSystemAnalysisJob,
         'Asia/Omsk'
     )
-    systemAnalysisJob.start()
-    if (!settings) store.set('settings', defaultSettings)
+    systemAnalysisJob.start(settings)
 }
+
+function isDev() {
+    return process.env.NODE_ENV === 'development';
+}
+
 init()
 
 // This method will be called when Electron has finished
@@ -76,12 +82,18 @@ const createWindow = () => {
         mainWindow.hide();
     });
 
+    if (process.platform === 'win32') {
+        app.setAppUserModelId("com.elegerd.fs_snapshot");
+    }
+
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
     mainWindow.setMenuBarVisibility(false);
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    if (isDev()) {
+        // Open the DevTools.
+        mainWindow.webContents.openDevTools();
+    }
 }
 
 app.on('ready', createWindow);
@@ -105,9 +117,10 @@ app.on('activate', () => {
 
 app.whenReady()
     .then(() => {
-        installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
-            .then((name) => console.log(`Added Extension: ${name}`))
-            .catch((err) => console.log('An error occurred: ', err));
+        if (isDev())
+            installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
+                .then((name) => console.log(`Added Extension: ${name}`))
+                .catch((err) => console.log('An error occurred: ', err));
     });
 
 // In this file you can include the rest of your app's specific main process

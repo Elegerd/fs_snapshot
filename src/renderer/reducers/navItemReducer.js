@@ -8,7 +8,7 @@ const initState = {
             id: 0,
             title: 'DASHBOARD',
             children: [
-                {id: 0, title: 'Overview', icon: 'home', path: 'overview'},
+                {id: 0, title: 'Overview', icon: 'home', path: ''},
                 {id: 1, title: 'Analysis', icon: 'bar_chart', path: 'analysis'}
             ]
         },
