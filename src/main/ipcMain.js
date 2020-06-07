@@ -1,6 +1,6 @@
 const {app, ipcMain, dialog} = require('electron');
 const {getJob} = require('./job.js')
-const {getHashFile, getAllFiles, saveAnalysis, filter} = require('./helper.js');
+const {getHashFile, getAllFiles, saveAnalysis, encryptionJSON, decryptionJSON, filter} = require('./helper.js');
 const promiseLimit = require('promise-limit');
 const path = require('path');
 const fsp = require('fs').promises;
@@ -16,7 +16,7 @@ module.exports = () => {
     ipcMain.handle('APP_SELECT_SNAPSHOTS', (event) => {
         return dialog.showOpenDialogSync(getWindow('main'), {
             properties: ['openFile', 'multiSelections'],
-            defaultPath: path.resolve(app.getAppPath(),'analysis'),
+            defaultPath: path.resolve(app.getAppPath(), 'snapshots'),
             filters: [
                 {name: 'JSON', extensions: ['json']},
                 {name: 'Все файлы', extensions: ['*']}
@@ -36,13 +36,13 @@ module.exports = () => {
         event.reply('APP_SETTING_REPLY', store.get('settings'))
     });
 
-    ipcMain.on('APP_SNAPSHOTS_ANALYSIS', (event, snapshots_path) => {
+    ipcMain.on('APP_SNAPSHOTS_ANALYSIS', (event, snapshotPaths) => {
         const reply = (message) => event.reply('APP_SNAPSHOTS_ANALYSIS_REPLY', message);
         reply({status: "beginning"});
-        const promises = snapshots_path.map(snapshot => {
+        const promises = snapshotPaths.map(snapshot => {
             return fsp.readFile(snapshot)
-                .then(json => {
-                    return JSON.parse(json);
+                .then(data => {
+                    return decryptionJSON(String.fromCharCode.apply(String, data));
                 })
                 .catch(_ => {
                     return {status: "error"}
@@ -53,6 +53,7 @@ module.exports = () => {
                 reply({status: "processing"});
                 const firstSnapshots = snapshots[0];
                 const secondSnapshots = snapshots[1];
+                console.log(firstSnapshots, secondSnapshots)
                 const allKeys = filter(Object.keys(firstSnapshots).concat(Object.keys(secondSnapshots))).sort();
                 fs.mkdir(path.resolve(app.getAppPath(), 'analysis'), {recursive: true}, (err) => {
                     if (err)
@@ -119,7 +120,7 @@ module.exports = () => {
                             reply({status: "error", message: "Something went wrong..."});
                         else {
                             fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
-                                JSON.stringify(hashs, null, 2), 'utf8', (error) => {
+                                encryptionJSON(hashs), 'utf8', (error) => {
                                     if (error) reply({status: "error", message: "Something went wrong..."});
                                     else reply({status: "done", message: "Done!"});
                                 }

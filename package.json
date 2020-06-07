@@ -103,6 +103,7 @@
     "async": "^3.2.0",
     "classnames": "^2.2.6",
     "cron": "^1.8.2",
+    "crypto-js": "^4.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^5.1.1",
     "excel4node": "^1.7.2",

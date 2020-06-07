@@ -3,8 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const async = require('async');
 const hasha = require('hasha');
+const CryptoJS = require("crypto-js");
 const xl = require('excel4node');
 const promiseLimit = require('promise-limit');
+const {encryptionKey} = require('./config');
 const Store = require('electron-store');
 
 
@@ -37,6 +39,21 @@ const getHashFile = (path, algorithm = 'md5') => {
     return hasha.fromFile(path, {algorithm})
 };
 
+const encryptionJSON = (data) => {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), encryptionKey, {
+        mode: CryptoJS.mode.ECB,
+        keySize: 256,
+    }).toString();
+};
+
+const decryptionJSON = (data) => {
+    const bytes = CryptoJS.AES.decrypt(data, encryptionKey, {
+        mode: CryptoJS.mode.ECB,
+        keySize: 256,
+    });
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
+
 const filter = (array) => {
     let temp = {};
     return array.filter(a => {
@@ -50,7 +67,6 @@ const getFiles = (dirPath, callback) => {
         let filePaths = [];
         async.eachSeries(files, (fileName, eachCallback) => {
             let filePath = path.join(dirPath, fileName);
-
             fs.stat(filePath, (err, stat) => {
                 if (err) return eachCallback(err);
 
@@ -120,7 +136,7 @@ const handleOnTickSystemAnalysisJob = () => {
                     fs.mkdir(path.resolve(app.getAppPath(), 'snapshots'), {recursive: true}, (error) => {
                         if (error) console.log("[SystemAnalysisJob]", error)
                         fs.writeFile(path.resolve(app.getAppPath(), `snapshots/${+new Date}.json`),
-                            JSON.stringify(hashs, null, 2), 'utf8', (error) => {
+                            encryptionJSON(hashs), 'utf8', (error) => {
                                 if (error) console.log("[SystemAnalysisJob]", error)
                                 const notificationEnd = new Notification({
                                     title: 'FS Snapshot', body: 'The automatic scanning process has ended'
@@ -141,5 +157,7 @@ module.exports = {
     getFiles,
     saveAnalysis,
     handleOnTickSystemAnalysisJob,
+    encryptionJSON,
+    decryptionJSON,
     filter
 }
