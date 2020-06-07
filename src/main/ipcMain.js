@@ -41,8 +41,10 @@ module.exports = () => {
         reply({status: "beginning"});
         const promises = snapshotPaths.map(snapshot => {
             return fsp.readFile(snapshot)
-                .then(data => {
-                    return decryptionJSON(String.fromCharCode.apply(String, data));
+                .then(response => {
+                    return decryptionJSON(new Uint8Array(response).reduce((data, byte) => {
+                        return data + String.fromCharCode(byte);
+                    }, ''));
                 })
                 .catch(_ => {
                     return {status: "error"}
@@ -53,7 +55,6 @@ module.exports = () => {
                 reply({status: "processing"});
                 const firstSnapshots = snapshots[0];
                 const secondSnapshots = snapshots[1];
-                console.log(firstSnapshots, secondSnapshots)
                 const allKeys = filter(Object.keys(firstSnapshots).concat(Object.keys(secondSnapshots))).sort();
                 fs.mkdir(path.resolve(app.getAppPath(), 'analysis'), {recursive: true}, (err) => {
                     if (err)
